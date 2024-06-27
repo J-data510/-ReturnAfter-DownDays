@@ -1,0 +1,44 @@
+import pandas as pd
+import os
+
+#select folder to pull data from
+path = r"C:\Users\Jason Roberts\Documents\Python_CSV"
+os.chdir(path)
+spy_share_price_data = pd.read_csv ('spy_close_stock_data.csv')
+number_of_down_days = 1
+years_trading = 3
+#insert years of trading strategy and number of down days
+days_trading = int(years_trading * 250)
+active_trading_days = spy_share_price_data[-days_trading:-1]
+
+def calculate_profit(down_days):
+    total_shares = 0
+    total_investment = 0
+
+    # Iterate through the data for the given number of years
+    for i in range(len(active_trading_days) - down_days + 1):
+            # Check for consecutive down days
+            if all(active_trading_days["Close"].iloc[i+j] > active_trading_days["Close"].iloc[i+j+1] for j in range(down_days - 1)):
+                # Buy 1 share on the last down day
+                buy_price = active_trading_days["Close"].iloc[i + down_days - 1]
+                total_shares += 1
+                total_investment += buy_price
+                #print (buy_price)
+    # Calculate total investment and final value of shares
+    final_value = active_trading_days["Close"].iloc[-1] * total_shares
+    profit = final_value - total_investment
+
+    return profit, final_value, total_investment
+
+# Calculate profit over 10 years
+profit = calculate_profit(number_of_down_days)
+percent_gain = (((profit[1]/profit[2])-1)*100)
+
+print ('profit = $', round(profit[0],2))
+print ('Total Value = $', round(profit[1],2))
+print ('Total Investment = $', round(profit[2],2))
+print ('Percent Gain = %', round(percent_gain,2))
+
+print (round(percent_gain,2))
+print (round(profit[0],2))
+print (round(profit[2],2))
